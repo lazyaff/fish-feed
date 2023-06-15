@@ -13,7 +13,7 @@ const char *password = "bagassdkangen";
 ESP8266WebServer server(80);
 Servo myservo;
 
-int servoPin = D1; // Pin servo terhubung ke D1 (GPIO5) di NodeMCU
+int servoPin = D3; // Pin servo terhubung ke D1 (GPIO5) di NodeMCU
 
 RTC_DS1307 rtc;
 
@@ -36,8 +36,8 @@ void setup()
 {
   Serial.begin(9600);
 
-  myservo.attach(D1);
-  myservo.write(90); // Posisi awal servo (0 derajat)
+  // myservo.attach(servoPin);
+  // myservo.write(90); // Posisi awal servo (0 derajat)
 
   WiFi.mode(WIFI_AP);
   WiFi.begin(ssid, password);
@@ -52,6 +52,7 @@ void setup()
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  Serial.println("");
 
   html += "<html><head><title>Fish Feeder</title><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'></head>";
   html += "<body class='text-center'><h1>Fish Feeder</h1>";
@@ -64,11 +65,11 @@ void setup()
 
   server.begin();
 
-  // Wire.begin(D2, D1); // SDA pin terhubung ke D2 (GPIO4), SCL pin terhubung ke D1 (GPIO5)
-  // rtc.begin();
+  Wire.begin(D2, D1); // SDA pin terhubung ke D2 (GPIO4), SCL pin terhubung ke D1 (GPIO5)
+  rtc.begin();
 
   // Set waktu RTC secara manual jika diperlukan
-  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
 
 void loop()
@@ -85,9 +86,15 @@ void loop()
   //   delay(15);          // Delay 15ms sebelum menggerakkan servo ke posisi selanjutnya
   // }
 
-  // DateTime now = rtc.now();
-  // int currentHour = now.hour();
+  DateTime now = rtc.now();
 
+  Serial.print(now.hour());
+  Serial.print(".");
+  Serial.print(now.minute());
+  Serial.print(".");
+  Serial.print(now.second());
+  Serial.println();
+  delay(1000);
   // Jadwalkan pergerakan servo pada pukul 10:00 dan 18:00
   // if (currentHour == 10 && now.minute() == 0 && now.second() == 0)
   // {
