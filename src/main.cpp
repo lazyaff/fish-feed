@@ -5,10 +5,10 @@
 #include <Wire.h>
 #include <RTClib.h>
 
-const char *ssid = "KOSTBAGAS";
-const char *password = "bagassdkangen";
-// const char *ssid = "ASUS_X00TD";
-// const char *password = "113333555555";
+// const char *ssid = "KOSTBAGAS";
+// const char *password = "bagassdkangen";
+const char *ssid = "ASUS_X00TD";
+const char *password = "113333555555";
 
 ESP8266WebServer server(80);
 Servo myservo;
@@ -26,9 +26,9 @@ void handleRoot()
 
 void handleServo()
 {
-  myservo.write(180);
-  delay(1000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
-  myservo.write(0);
+  myservo.write(45);
+  delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+  myservo.write(90);
   server.send(200, "text/html", html);
 }
 
@@ -36,8 +36,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  // myservo.attach(servoPin);
-  // myservo.write(90); // Posisi awal servo (0 derajat)
+  myservo.attach(servoPin);
 
   WiFi.mode(WIFI_AP);
   WiFi.begin(ssid, password);
@@ -75,33 +74,31 @@ void setup()
 void loop()
 {
   server.handleClient();
-  // for (int pos = 0; pos <= 180; pos += 1)
-  // {                     // Menggerakkan servo dari 0 derajat hingga 180 derajat
-  //   myservo.write(pos); // Menggerakkan servo ke posisi tertentu
-  //   delay(15);          // Delay 15ms sebelum menggerakkan servo ke posisi selanjutnya
-  // }
-  // for (int pos = 180; pos >= 0; pos -= 1)
-  // {                     // Menggerakkan servo dari 180 derajat hingga 0 derajat
-  //   myservo.write(pos); // Menggerakkan servo ke posisi tertentu
-  //   delay(15);          // Delay 15ms sebelum menggerakkan servo ke posisi selanjutnya
-  // }
 
   DateTime now = rtc.now();
+  int hour = now.hour();
+  int minute = now.minute();
+  int second = now.second();
 
-  Serial.print(now.hour());
-  Serial.print(".");
-  Serial.print(now.minute());
-  Serial.print(".");
-  Serial.print(now.second());
   Serial.println();
-  delay(1000);
+  Serial.print(hour);
+  Serial.print(".");
+  Serial.print(minute);
+  Serial.print(".");
+  Serial.print(second);
+
   // Jadwalkan pergerakan servo pada pukul 10:00 dan 18:00
-  // if (currentHour == 10 && now.minute() == 0 && now.second() == 0)
-  // {
-  //   moveServo(45); // Posisi servo pada sudut 45 derajat
-  // }
-  // else if (currentHour == 18 && now.minute() == 0 && now.second() == 0)
-  // {
-  //   moveServo(135); // Posisi servo pada sudut 135 derajat
-  // }
+  if (hour == 6 && minute == 0 && second == 0)
+  {
+    myservo.write(45);
+    delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+    myservo.write(90);
+  }
+  else if (hour == 16 && minute == 0 && second == 0)
+  {
+    myservo.write(45);
+    delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+    myservo.write(90);
+  }
+  delay(1000);
 }
