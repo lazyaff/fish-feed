@@ -5,10 +5,10 @@
 #include <Wire.h>
 #include <RTClib.h>
 
-// const char *ssid = "KOSTBAGAS";
-// const char *password = "bagassdkangen";
-const char *ssid = "ASUS_X00TD";
-const char *password = "113333555555";
+const char *ssid = "KOSTBAGAS";
+const char *password = "bagassdkangen";
+// const char *ssid = "ASUS_X00TD";
+// const char *password = "113333555555";
 
 ESP8266WebServer server(80);
 Servo myservo;
@@ -27,7 +27,7 @@ void handleRoot()
 void handleServo()
 {
   myservo.write(45);
-  delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+  delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
   myservo.write(90);
   server.send(200, "text/html", html);
 }
@@ -91,13 +91,13 @@ void loop()
   if (hour == 6 && minute == 0 && second == 0)
   {
     myservo.write(45);
-    delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+    delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
     myservo.write(90);
   }
   else if (hour == 16 && minute == 0 && second == 0)
   {
     myservo.write(45);
-    delay(3000); // Berikan waktu untuk servo mencapai posisi yang diinginkan
+    delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
     myservo.write(90);
   }
   delay(1000);
