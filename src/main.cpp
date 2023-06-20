@@ -4,6 +4,8 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <RTClib.h>
+#include <iostream>
+using namespace std;
 
 const char *ssid = "KOSTBAGAS";
 const char *password = "bagassdkangen";
@@ -18,6 +20,12 @@ int servoPin = D3; // Pin servo terhubung ke D1 (GPIO5) di NodeMCU
 RTC_DS1307 rtc;
 
 String html;
+String rh = "00";
+String rm = "00";
+int j1_h = 6;
+int j1_m = 0;
+int j2_h = 16;
+int j2_m = 0;
 
 void handleRoot()
 {
@@ -26,10 +34,43 @@ void handleRoot()
 
 void handleServo()
 {
+  DateTime recent = rtc.now();
+  rh = recent.hour();
+  rm = recent.minute();
+  String str_j1_h = String(to_string(j1_h).c_str());
+  String str_j1_m = String(to_string(j1_m).c_str());
+  String str_j2_h = String(to_string(j2_h).c_str());
+  String str_j2_m = String(to_string(j2_m).c_str());
+  html = "";
+  html += "<html><head><title>Fish Feeder</title><link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'><style>body{background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;}</style></head><body class='d-flex align-items-center justify-content-center bg-image'><div class='text-center'><h1>Fish Feeder</h1><br><p>Jadwal pemberian pakan : <br>" + str_j1_h + "." + str_j1_m + " | " + str_j2_h + "." + str_j2_m + "</p><p>Terakhir diberi makan pada pukul " + rh + "." + rm + "</p><p>Saat ini pukul pukul " + recent.hour() + "." + recent.minute() + "." + recent.second() + "</p><p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p></div><div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'><div class='modal-dialog modal-dialog-centered' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5></div><div class='modal-body'><form action='/submit' method='post'><div class='form-group'><label for='jadwal1'>Jadwal 1</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value='" + str_j1_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value='" + str_j1_m + "'></div></div></div><div class='form-group mt-2'><label for='jadwal2'>Jadwal 2</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value='" + str_j2_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value='" + str_j2_m + "'></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button><button type='submit' class='btn btn-primary'>Simpan</button></div></form></div></div></div><script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script></body></html>";
   myservo.write(45);
   delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
   myservo.write(90);
   server.send(200, "text/html", html);
+}
+
+void handleChange()
+{
+  if (server.hasArg("j1-h") && server.hasArg("j1-m") && server.hasArg("j2-h") && server.hasArg("j2-m"))
+  {
+    j1_h = server.arg("j1-h").toInt();
+    j1_m = server.arg("j1-m").toInt();
+    j2_h = server.arg("j2-h").toInt();
+    j2_m = server.arg("j2-m").toInt();
+    Serial.println("berhasil berubah");
+    String str_j1_h = String(to_string(j1_h).c_str());
+    String str_j1_m = String(to_string(j1_m).c_str());
+    String str_j2_h = String(to_string(j2_h).c_str());
+    String str_j2_m = String(to_string(j2_m).c_str());
+    html = "";
+    html += "<html><head><title>Fish Feeder</title><link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'><style>body{background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;}</style></head><body class='d-flex align-items-center justify-content-center bg-image'><div class='text-center'><h1>Fish Feeder</h1><br><p>Jadwal pemberian pakan : <br>" + str_j1_h + "." + str_j1_m + " | " + str_j2_h + "." + str_j2_m + "</p><p>Terakhir diberi makan pada pukul " + rh + "." + rm + "</p><p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p></div><div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'><div class='modal-dialog modal-dialog-centered' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5></div><div class='modal-body'><form action='/submit' method='post'><div class='form-group'><label for='jadwal1'>Jadwal 1</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value='" + str_j1_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value='" + str_j1_m + "'></div></div></div><div class='form-group mt-2'><label for='jadwal2'>Jadwal 2</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value='" + str_j2_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value='" + str_j2_m + "'></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button><button type='submit' class='btn btn-primary'>Simpan</button></div></form></div></div></div><script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script></body></html>";
+    server.send(200, "text/html", html);
+  }
+  else
+  {
+    Serial.println("terjadi kesalahan");
+    server.send(200, "text/html", html);
+  }
 }
 
 void setup()
@@ -53,14 +94,15 @@ void setup()
   Serial.println(WiFi.localIP());
   Serial.println("");
 
-  html += "<html><head><title>Fish Feeder</title><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'></head>";
-  html += "<body class='text-center'><h1>Fish Feeder</h1>";
-  html += "<p>Tekan tombol dibawah untuk memberi makan ikan.</p>";
-  html += "<p><a href=\"servo\"\"><button class='btn btn-primary'>Mulai</button></a></p>";
-  html += "</body></html>";
+  String str_j1_h = String(to_string(j1_h).c_str());
+  String str_j1_m = String(to_string(j1_m).c_str());
+  String str_j2_h = String(to_string(j2_h).c_str());
+  String str_j2_m = String(to_string(j2_m).c_str());
+  html += "<html><head><title>Fish Feeder</title><link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'><style>body{background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;}</style></head><body class='d-flex align-items-center justify-content-center bg-image'><div class='text-center'><h1>Fish Feeder</h1><br><p>Jadwal pemberian pakan : <br>" + str_j1_h + "." + str_j1_m + " | " + str_j2_h + "." + str_j2_m + "</p><p>Terakhir diberi makan pada pukul " + rh + "." + rm + "</p><p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p></div><div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'><div class='modal-dialog modal-dialog-centered' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5></div><div class='modal-body'><form action='/submit' method='post'><div class='form-group'><label for='jadwal1'>Jadwal 1</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value='" + str_j1_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value='" + str_j1_m + "'></div></div></div><div class='form-group mt-2'><label for='jadwal2'>Jadwal 2</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value='" + str_j2_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value='" + str_j2_m + "'></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button><button type='submit' class='btn btn-primary'>Simpan</button></div></form></div></div></div><script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script></body></html>";
 
   server.on("/", handleRoot);
   server.on("/servo", handleServo);
+  server.on("/submit", handleChange);
 
   server.begin();
 
@@ -87,15 +129,31 @@ void loop()
   Serial.print(".");
   Serial.print(second);
 
-  // Jadwalkan pergerakan servo pada pukul 10:00 dan 18:00
-  if (hour == 6 && minute == 0 && second == 0)
+  // Jadwalkan pergerakan servo pada pukul 6:00 dan 16:00
+  if (hour == j1_h && minute == j1_m && second == 0)
   {
+    rh = hour;
+    rm = minute;
+    String str_j1_h = String(to_string(j1_h).c_str());
+    String str_j1_m = String(to_string(j1_m).c_str());
+    String str_j2_h = String(to_string(j2_h).c_str());
+    String str_j2_m = String(to_string(j2_m).c_str());
+    html = "";
+    html += "<html><head><title>Fish Feeder</title><link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'><style>body{background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;}</style></head><body class='d-flex align-items-center justify-content-center bg-image'><div class='text-center'><h1>Fish Feeder</h1><br><p>Jadwal pemberian pakan : <br>" + str_j1_h + "." + str_j1_m + " | " + str_j2_h + "." + str_j2_m + "</p><p>Terakhir diberi makan pada pukul " + rh + "." + rm + "</p><p>Saat ini pukul pukul " + hour + "." + minute + "." + second + "</p><p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p></div><div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'><div class='modal-dialog modal-dialog-centered' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5></div><div class='modal-body'><form action='/submit' method='post'><div class='form-group'><label for='jadwal1'>Jadwal 1</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value='" + str_j1_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value='" + str_j1_m + "'></div></div></div><div class='form-group mt-2'><label for='jadwal2'>Jadwal 2</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value='" + str_j2_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value='" + str_j2_m + "'></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button><button type='submit' class='btn btn-primary'>Simpan</button></div></form></div></div></div><script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script></body></html>";
     myservo.write(45);
     delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
     myservo.write(90);
   }
-  else if (hour == 16 && minute == 0 && second == 0)
+  else if (hour == j2_h && minute == j2_m && second == 0)
   {
+    rh = hour;
+    rm = minute;
+    String str_j1_h = String(to_string(j1_h).c_str());
+    String str_j1_m = String(to_string(j1_m).c_str());
+    String str_j2_h = String(to_string(j2_h).c_str());
+    String str_j2_m = String(to_string(j2_m).c_str());
+    html = "";
+    html += "<html><head><title>Fish Feeder</title><link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'><style>body{background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;}</style></head><body class='d-flex align-items-center justify-content-center bg-image'><div class='text-center'><h1>Fish Feeder</h1><br><p>Jadwal pemberian pakan : <br>" + str_j1_h + "." + str_j1_m + " | " + str_j2_h + "." + str_j2_m + "</p><p>Terakhir diberi makan pada pukul " + rh + "." + rm + "</p><p>Saat ini pukul pukul " + hour + "." + minute + "." + second + "</p><p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p></div><div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'><div class='modal-dialog modal-dialog-centered' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5></div><div class='modal-body'><form action='/submit' method='post'><div class='form-group'><label for='jadwal1'>Jadwal 1</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value='" + str_j1_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value='" + str_j1_m + "'></div></div></div><div class='form-group mt-2'><label for='jadwal2'>Jadwal 2</label><div class='row'><div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value='" + str_j2_h + "'></div><div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value='" + str_j2_m + "'></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button><button type='submit' class='btn btn-primary'>Simpan</button></div></form></div></div></div><script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script><script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script></body></html>";
     myservo.write(45);
     delay(2280); // Berikan waktu untuk servo mencapai posisi yang diinginkan
     myservo.write(90);

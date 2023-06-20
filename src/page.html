@@ -1,11 +1,58 @@
 <html>
-    <head>
-        <title>Fish Feeder</title>
-        <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'>
-    </head>
-  <body class='text-center'>
-    <h1>Fish Feeder</h1>
-    <p>Tekan tombol dibawah untuk memberi makan ikan.</p>
-    <p><a href=\"servo\"\"><button class='btn btn-primary'>Mulai</button></a></p>
+  <head>
+      <title>Fish Feeder</title>
+      <link rel='icon' type='image/x-icon' href='https://www.clipartmax.com/png/small/307-3075608_betta-transparent-png-betta-fish-png.png'>
+      <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM' crossorigin='anonymous'>
+
+      <style>
+        body{
+          background-image: url('https://images.unsplash.com/photo-1528460033278-a6ba57020470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80'); height: 100vh; background-size: cover;
+        }
+      </style>
+  </head>
+  <body class='d-flex align-items-center justify-content-center bg-image'>
+    <div class='text-center'>
+      <h1>Fish Feeder</h1><br>
+      <p>Jadwal pemberian pakan : <br> 07.00 | 16.00</p>
+      <p>Terakhir diberi makan pada pukul 00.00.</p>
+      <p>Saat ini pukul pukul 00.00.</p>
+      <p><button data-toggle='modal' data-target='#ganti' class='btn btn-secondary'>Ubah Jadwal</button> <a href=\'servo\'\'><button class='btn btn-primary'>Beri Makan</button></a></p>
+    </div>
+
+    <div class='modal fade' id='ganti' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'>
+      <div class='modal-dialog modal-dialog-centered' role='document'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='exampleModalLongTitle'>Ubah Jadwal</h5>
+          </div>
+          <div class='modal-body'>
+            <form actiion='/submit' method='post'>
+              <div class='form-group'>
+                <label for='jadwal1'>Jadwal 1</label>
+                <div class='row'>
+                  <div class='col'><input type='number' min='0' max='23' class='form-control' name='j1-h' value=''></div>
+                  <div class='col'><input type='number' min='0' max='59' class='form-control' name='j1-m' value=''></div>
+                </div>
+              </div>
+              <div class='form-group mt-2'>
+                <label for='jadwal2'>Jadwal 2</label>
+                <div class='row'>
+                  <div class='col'><input type='number' min='0' max='23' class='form-control' name='j2-h' value=''></div>
+                  <div class='col'><input type='number' min='0' max='59' class='form-control' name='j2-m' value=''></div>
+                </div>
+              </div>
+          </div>
+          <div class='modal-footer'>
+            <button type='button' class='btn btn-secondary' data-dismiss='modal'>Batal</button>
+            <button type='submit' class='btn btn-primary'>Simpan</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+
+    <script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script>
+    <script src='https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q' crossorigin='anonymous'></script>
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl' crossorigin='anonymous'></script>
   </body>
 </html>
